@@ -1,6 +1,10 @@
 import os
 from flask import Flask
 
+from . import db
+from .auth import bp as auth_bp
+from .home import bp as home_bp
+
 def create_app(test_config=None):
     # create and configure the app
     app=Flask(__name__, instance_relative_config=True)
@@ -19,15 +23,31 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    db.init_app(app)
+
+    # from . import auth, home
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(home_bp)
+
     # a simple page that says hello
     @app.route('/hello')
     def hello():
         return 'hello world'
 
-    from . import db
-    db.init_app(app)
+    return app
 
-    from . import auth
-    app.register_blueprint(auth.bp)
+
+    """
+    @app.route('/')
+    def index():
+        repo = Repo(os.path.dirname(os.path.realpath(__file__)))
+        tags = sorted(repo.tags, key=lambda t: t.commit.committed_datetime)
+        gittag = str(tags[-1])
+        return render_template()
+    """
+
+    """
+    from . import db
 
     return app
+    """
